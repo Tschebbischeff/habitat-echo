@@ -1,0 +1,66 @@
+name: ${APP_NAME_HOST}
+
+networks:
+  internal:
+    name: ${APP_NAME_HOST}_internal
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "${APP_NETWORK_POOL}"
+
+# volumes:
+#   habitat-config:
+
+# No Secrets, Syntax Stub:
+# secrets:
+#   SECRET_NAME:
+#     file: ${SECRETS_DIR}/SECRET_NAME
+
+
+services:
+
+  # habitat-config-MODULENAME:
+  #   image: tschebbischeff/habitat-config:latest
+  #   container_name: ${APP_NAME_HOST}_habitat-config-MODULENAME
+  #   restart: no
+  #   env_file:
+  #     - ./.env
+  #     - path: ${ENV_DIR}/.env
+  #       required: false
+  #     - path: ${ENV_DIR}/habitat-config.env
+  #       required: false
+  #   environment:
+  #     MODULE_NAME: "MODULENAME"
+  #   networks:
+  #     internal:
+  #   volumes:
+  #     - habitat-config:/habitat-config/orchestration
+  #     - ./habitat-config:/habitat-config/source:ro
+
+  SERVICENAME:
+    image: alpine:latest
+    container_name: ${APP_NAME_HOST}_SERVICENAME
+    restart: unless-stopped
+    # expose:
+    #   - '1337'
+    env_file:
+      - ./.env
+      - path: ${ENV_DIR}/.env
+        required: false
+      - path: ${ENV_DIR}/SERVICENAME.env
+        required: false
+    environment:
+      FOO: 'bar'
+    # volumes:
+    #   - /src:/dest
+    networks:
+      internal:
+    # healthcheck:
+    #   test: [ "CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:1337/healthz" ]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+    #   start_period: 10s
+    # depends_on:
+    #   habitat-config-MODULENAME:
+    #     condition: service_completed_successfully
