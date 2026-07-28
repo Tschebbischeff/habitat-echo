@@ -8,8 +8,10 @@ networks:
       config:
         - subnet: "${APP_NETWORK_POOL}"
 
-# volumes:
-#   habitat-config:
+volumes:
+  habitat-config:
+  audiobookshelf-config:
+  audiobookshelf-metadata:
 
 # No Secrets, Syntax Stub:
 # secrets:
@@ -19,48 +21,56 @@ networks:
 
 services:
 
-  # habitat-config-MODULENAME:
-  #   image: tschebbischeff/habitat-config:latest
-  #   container_name: ${APP_NAME_HOST}_habitat-config-MODULENAME
-  #   restart: no
-  #   env_file:
-  #     - ./.env
-  #     - path: ${ENV_DIR}/.env
-  #       required: false
-  #     - path: ${ENV_DIR}/habitat-config.env
-  #       required: false
-  #   environment:
-  #     MODULE_NAME: "MODULENAME"
-  #   networks:
-  #     internal:
-  #   volumes:
-  #     - habitat-config:/habitat-config/orchestration
-  #     - ./habitat-config:/habitat-config/source:ro
-
-  SERVICENAME:
-    image: alpine:latest
-    container_name: ${APP_NAME_HOST}_SERVICENAME
-    restart: unless-stopped
-    # expose:
-    #   - '1337'
+  habitat-config-echo:
+    image: tschebbischeff/habitat-config:latest
+    container_name: ${APP_NAME_HOST}_habitat-config-echo
+    restart: no
     env_file:
       - ./.env
       - path: ${ENV_DIR}/.env
         required: false
-      - path: ${ENV_DIR}/SERVICENAME.env
+      - path: ${ENV_DIR}/habitat-config.env
         required: false
     environment:
-      FOO: 'bar'
-    # volumes:
-    #   - /src:/dest
+      MODULE_NAME: "echo"
     networks:
       internal:
-    # healthcheck:
-    #   test: [ "CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:1337/healthz" ]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 5
-    #   start_period: 10s
-    # depends_on:
-    #   habitat-config-MODULENAME:
-    #     condition: service_completed_successfully
+    volumes:
+      - habitat-config:/habitat-config/orchestration
+      - ./habitat-config:/habitat-config/source:ro
+      - audiobookshelf-config:/habitat-config/target/audiobookshelf
+
+  audiobookshelf:
+    build:
+      context: ./audiobookshelf
+    container_name: ${APP_NAME_HOST}_audiobookshelf
+    restart: unless-stopped
+    expose:
+      - '80'
+    env_file:
+      - ./.env
+      - path: ${ENV_DIR}/.env
+        required: false
+      - path: ${ENV_DIR}/audiobookshelf.env
+        required: false
+    environment:
+      SOURCE: 'docker'
+      BACKUP_PATH: './backups'
+      PORT: '80'
+    volumes:
+      - audiobookshelf-config:/config
+      - audiobookshelf-metadata:/metadata
+      - ${VOLUME_DIR}/audiobookshelf-audiobooks:/audiobooks
+      - ${VOLUME_DIR}/audiobookshelf-podcasts:/podcasts
+      - ${VOLUME_DIR}/audiobookshelf-backups:/backups
+    networks:
+      internal:
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:80/healthcheck" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      habitat-config-echo:
+        condition: service_completed_successfully

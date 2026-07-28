@@ -24,4 +24,11 @@ The date used in the copyright notices in this file represents the year indicate
 * **Copyright Notice:** <COPYRIGHT_NOTICE>
 -->
 
-*This repository currently does not use any third-party software directly.*
+## Audiobookshelf
+
+* **Project:** https://audiobookshelf.org/
+* **Version:** Latest
+* **In use since:** July 2026
+* **Source Code:** https://github.com/advplyr/audiobookshelf
+* **License:** [GPL-3.0-only](https://github.com/advplyr/audiobookshelf/blob/master/LICENSE)
+* **Copyright Notice:** Copyright (c) 2021, advplyr
