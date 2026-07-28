@@ -46,7 +46,6 @@ services:
     volumes:
       - habitat-config:/habitat-config/orchestration
       - ./habitat-config:/habitat-config/source:ro
-      - audiobookshelf-config:/habitat-config/target/audiobookshelf
 
   audiobookshelf:
     build:
