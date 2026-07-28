@@ -13,10 +13,15 @@ volumes:
   audiobookshelf-config:
   audiobookshelf-metadata:
 
-# No Secrets, Syntax Stub:
-# secrets:
-#   SECRET_NAME:
-#     file: ${SECRETS_DIR}/SECRET_NAME
+secrets:
+  AUDIOBOOKSHELF_ADMIN_PASSWORD:
+    file: ${SECRETS_DIR}/AUDIOBOOKSHELF_ADMIN_PASSWORD
+  AUDIOBOOKSHELF_OAUTH_CLIENT_ID:
+    file: ${SECRETS_DIR}/AUDIOBOOKSHELF_OAUTH_CLIENT_ID
+  AUDIOBOOKSHELF_OAUTH_CLIENT_SECRET:
+    file: ${SECRETS_DIR}/AUDIOBOOKSHELF_OAUTH_CLIENT_SECRET
+  AUDIOBOOKSHELF_OAUTH_CLIENT_SECRET_HASHED_PBKDF2:
+    file: ${SECRETS_DIR}/AUDIOBOOKSHELF_OAUTH_CLIENT_SECRET_HASHED_PBKDF2
 
 
 services:
@@ -33,6 +38,9 @@ services:
         required: false
     environment:
       MODULE_NAME: "echo"
+    secrets:
+      - AUDIOBOOKSHELF_OAUTH_CLIENT_ID
+      - AUDIOBOOKSHELF_OAUTH_CLIENT_SECRET_HASHED_PBKDF2
     networks:
       internal:
     volumes:
@@ -57,6 +65,11 @@ services:
       SOURCE: 'docker'
       BACKUP_PATH: './backups'
       PORT: '80'
+      AUDIOBOOKSHELF_ADMIN_PASSWORD_FILE: '/run/secrets/AUDIOBOOKSHELF_ADMIN_PASSWORD'
+    secrets:
+      - AUDIOBOOKSHELF_ADMIN_PASSWORD
+      - AUDIOBOOKSHELF_OAUTH_CLIENT_ID
+      - AUDIOBOOKSHELF_OAUTH_CLIENT_SECRET
     volumes:
       - audiobookshelf-config:/config
       - audiobookshelf-metadata:/metadata

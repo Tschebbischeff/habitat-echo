@@ -1,13 +1,18 @@
 #!/bin/sh
 
+ADMIN_PASSWORD="$AUDIOBOOKSHELF_ADMIN_PASSWORD"
+[ -f "$AUDIOBOOKSHELF_ADMIN_PASSWORD_FILE" ] && ADMIN_PASSWORD="$(cat "$AUDIOBOOKSHELF_ADMIN_PASSWORD_FILE")"
+
 # wget --quiet --method=POST \
 #     --header="Content-Type: application/json" \
 #     --body-data='
 #         {
-#             "username": "admin",
-#             "password":"admin"
+#             "newRoot": {
+#                 "username": "admin",
+#                 "password": "'"$ADMIN_PASSWORD"'"
+#             }
 #         }
 #     ' \
-#     http://localhost:80/init
+#     'http://127.0.0.1:80/init'
 
 exec "$@"

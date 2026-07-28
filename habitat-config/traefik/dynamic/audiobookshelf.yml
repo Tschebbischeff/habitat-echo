@@ -1,0 +1,21 @@
+# Documentation:
+# https://doc.traefik.io/traefik/reference/routing-configuration/dynamic-configuration-methods/
+# https://doc.traefik.io/traefik/reference/routing-configuration/http/tls/overview/
+
+http:
+  services:
+    svc_audiobookshelf-80:
+      loadBalancer:
+        servers:
+          - url: 'http://{{ env "APP_NAME_HOST" }}_audiobookshelf:80'
+  routers:
+    audiobookshelf-80:
+      rule: 'Host(`audiobookshelf.{{ env "APP_HOST" }}`)'
+      priority: 1
+      service: svc_audiobookshelf-80
+      entryPoints: ["websecure"]
+      middlewares:
+        - "sts-headers"
+        - "cors-policy"
+      tls:
+        certResolver: porkbun-api

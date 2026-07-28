@@ -1,0 +1,34 @@
+access_control:
+  rules:
+    - domain: 'audiobookshelf.{{ env "APP_HOST" }}'
+      subject: 'group:audiobookshelf_users'
+      policy: one_factor
+
+identity_providers:
+  oidc: # https://www.authelia.com/integration/openid-connect/frequently-asked-questions/#how-do-i-generate-a-client-identifier-or-client-secret
+    clients:
+      - client_id: '${AUDIOBOOKSHELF_OAUTH_CLIENT_ID}' # docker run --rm authelia/authelia:latest authelia crypto rand --length 72 --charset rfc3986
+        client_name: 'Audiobookshelf'
+        client_secret: '${AUDIOBOOKSHELF_OAUTH_CLIENT_SECRET_HASHED_PBKDF2}' # docker run --rm authelia/authelia:latest authelia crypto hash generate pbkdf2 --variant sha512 --random --random.length 72 --random.charset rfc3986
+        public: false
+        authorization_policy: 'one_factor'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://audiobookshelf.{{ env "APP_HOST" }}/auth/openid/callback'
+          - 'https://audiobookshelf.{{ env "APP_HOST" }}/auth/openid/mobile-redirect'
+          - 'audiobookshelf://oauth'
+        scopes:
+          - 'openid'
+          - 'profile'
+          - 'groups'
+          - 'email'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+        access_token_signed_response_alg: 'none'
+        userinfo_signed_response_alg: 'none'
+        token_endpoint_auth_method: 'client_secret_basic'
+        consent_mode: 'pre-configured'
+        pre_configured_consent_duration: '1y'
