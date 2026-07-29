@@ -78,6 +78,7 @@ TOKEN="$(node -e "console.log(JSON.parse(process.argv[1]).user.accessToken)" "$r
 # ### Provisioning
 
 # Server Settings
+envsubst <"$ABS_PROVISIONING_PATH/server_settings.jsone" >"$ABS_PROVISIONING_PATH/server_settings.json"
 # curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
 #     -H "Authorization: Bearer $TOKEN" \
 #     -H "Content-Type: application/json" \
@@ -88,6 +89,7 @@ TOKEN="$(node -e "console.log(JSON.parse(process.argv[1]).user.accessToken)" "$r
 #     }
 
 # Auth Settings
+envsubst <"$ABS_PROVISIONING_PATH/auth_settings.jsone" >"$ABS_PROVISIONING_PATH/auth_settings.json"
 # curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
 #     -H "Authorization: Bearer $TOKEN" \
 #     -H "Content-Type: application/json" \
