@@ -1,8 +1,8 @@
 #!/bin/sh
 
-ADMIN_PASSWORD="$AUDIOBOOKSHELF_ADMIN_PASSWORD"
-[ -f "$AUDIOBOOKSHELF_ADMIN_PASSWORD_FILE" ] && ADMIN_PASSWORD="$(cat "$AUDIOBOOKSHELF_ADMIN_PASSWORD_FILE")"
-[ -n "$ADMIN_PASSWORD" ] || { echo "No admin password set. Please set either AUDIOBOOKSHELF_ADMIN_PASSWORD or AUDIOBOOKSHELF_ADMIN_PASSWORD_FILE"; exit 1; }
+ROOT_PASSWORD="$AUDIOBOOKSHELF_ROOT_PASSWORD"
+[ -f "$AUDIOBOOKSHELF_ROOT_PASSWORD_FILE" ] && ROOT_PASSWORD="$(cat "$AUDIOBOOKSHELF_ROOT_PASSWORD_FILE")"
+[ -n "$ROOT_PASSWORD" ] || { echo "No admin password set. Please set either AUDIOBOOKSHELF_ROOT_PASSWORD or AUDIOBOOKSHELF_ROOT_PASSWORD_FILE"; exit 1; }
 
 { [ "$PORT" -ne "13378" ] && TEMP_PORT="13378"; } || TEMP_PORT="13379"
 echo "Starting temporary server on port $TEMP_PORT for initialization and provisioning..."
@@ -23,7 +23,7 @@ if [ ! -f "$CONFIG_PATH/.habitat-init" ]; then
         --post-data='{
             "newRoot": {
                 "username": "root",
-                "password": "'"$ADMIN_PASSWORD"'"
+                "password": "'"$ROOT_PASSWORD"'"
             }
         }' \
         "http://127.0.0.1:$TEMP_PORT/init" 1>/dev/null
@@ -42,7 +42,7 @@ RESPONSE="$(
         --header="Content-Type: application/json" \
         --post-data='{
             "username": "root",
-            "password": "'"$ADMIN_PASSWORD"'"
+            "password": "'"$ROOT_PASSWORD"'"
         }' \
         "http://localhost:$TEMP_PORT/login"
 )"
