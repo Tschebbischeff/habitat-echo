@@ -1,6 +1,10 @@
 FROM ghcr.io/advplyr/audiobookshelf:latest
 
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl envsubst patch
+
+COPY ./patches /habitat-patches
+RUN patch "/app/server/auth/OidcAuthStrategy.js" <"/habitat-patches/OidcAuthStrategy.js.patch"
+RUN rm -rf /habitat-patches
 
 COPY ./entrypoint-hook.sh /entrypoint-hook.sh
 RUN chmod +x /entrypoint-hook.sh

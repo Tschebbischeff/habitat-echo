@@ -1,0 +1,32 @@
+{
+    "storeCoverWithItem": ${ABS_SETTINGS_STORE_COVER_WITH_ITEM:-false},
+    "storeMetadataWithItem": ${ABS_SETTINGS_STORE_METADATA_WITH_ITEM:-false},
+    "sortingIgnorePrefix": ${ABS_SETTINGS_SORTING_IGNORE_PREFIX:-true},
+    "sortingPrefixes": [ ${ABS_SETTINGS_SORTING_PREFIXES:-"\"the\", \"a\""} ],
+    "scannerParseSubtitle": ${ABS_SETTINGS_SCANNER_PARSE_SUBTITLE:-false},
+    "scannerFindCovers": ${ABS_SETTINGS_SCANNER_FIND_COVERS:-false},
+    "scannerCoverProvider": "${ABS_SETTINGS_SCANNER_COVER_PROVIDER:-"google"}",
+    "scannerPreferMatchedMetadata": ${ABS_SETTINGS_SCANNER_PREFER_MATCHED_METADATA:-false},
+    "scannerDisableWatcher": ${ABS_SETTINGS_SCANNER_DISABLE_WATCHER:-false},
+    "chromecastEnabled": ${ABS_SETTINGS_CHROMECAST_ENABLED:-false},
+    "homeBookshelfView": ${ABS_SETTINGS_HOME_BOOKSHELF_VIEW:-"1"},
+    "bookshelfView": ${ABS_SETTINGS_BOOKSHELF_VIEW:-"1"},
+    "dateFormat": ${ABS_SETTINGS_DATE_FORMAT:-"MM/dd/yyyy"},
+    "timeFormat": ${ABS_SETTINGS_TIME_FORMAT:-"HH:mm"},
+    "language": ${ABS_SETTINGS_LANGUAGE:-"en-us"},
+    "allowedOrigins": [ ${ABS_SETTINGS_ALLOWED_ORIGINS:-} ],
+
+    "backupSchedule": ${ABS_SETTINGS_BACKUP_SCHEDULE:-true},
+    "backupsToKeep": ${ABS_SETTINGS_BACKUPS_TO_KEEP:-"2"},
+    "maxBackupSize": ${ABS_SETTINGS_MAX_BACKUP_SIZE:-"1"},
+
+    "metadataFileFormat": "${ABS_SETTINGS_METADATA_FILE_FORMAT:-"json"}",
+    "rateLimitLoginRequests": ${ABS_SETTINGS_RATE_LIMIT_LOGIN_REQUESTS:-"10"},
+    "rateLimitLoginWindow": ${ABS_SETTINGS_RATE_LIMIT_LOGIN_WINDOW:-"600000"},
+
+    "loggerDailyLogsToKeep": ${ABS_SETTINGS_LOGGER_DAILY_LOGS_TO_KEEP:-"7"},
+    "loggerScannerLogsToKeep": ${ABS_SETTINGS_LOGGER_SCANNER_LOGS_TO_KEEP:-"2"},
+    "logLevel": ${ABS_SETTINGS_LOG_LEVEL:-"2"},
+
+    "podcastEpisodeSchedule": "${ABS_SETTINGS_PODCAST_EPISODE_SCHEDULE:-"0 * * * *"}"
+}

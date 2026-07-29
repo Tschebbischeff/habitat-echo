@@ -1,0 +1,11 @@
+--- OidcAuthStrategy.orig.js	2026-07-29 18:23:32.270429235 +0200
++++ OidcAuthStrategy.mod.js	2026-07-29 18:26:16.301153014 +0200
+@@ -196,7 +196,7 @@
+     const groupsList = userinfo[groupClaimName].map((group) => group.toLowerCase())
+     const rolesInOrderOfPriority = ['admin', 'user', 'guest']
+
+-    let userType = rolesInOrderOfPriority.find((role) => groupsList.includes(role))
++    let userType = rolesInOrderOfPriority.find((role) => groupsList.includes(`audiobookshelf_${role}s`) || (role == 'admin' && groupsList.includes('admins')))
+     if (userType) {
+       if (user.type === 'root') {
+         // Check OpenID Group

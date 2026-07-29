@@ -12,6 +12,7 @@ volumes:
   habitat-config:
   audiobookshelf-config:
   audiobookshelf-metadata:
+  audiobookshelf-provisioning:
 
 secrets:
   AUDIOBOOKSHELF_ROOT_PASSWORD:
@@ -46,6 +47,7 @@ services:
     volumes:
       - habitat-config:/habitat-config/orchestration
       - ./habitat-config:/habitat-config/source:ro
+      - audiobookshelf-provisioning:/habitat-config/target/audiobookshelf
 
   audiobookshelf:
     build:
@@ -62,9 +64,17 @@ services:
         required: false
     environment:
       SOURCE: 'docker'
-      BACKUP_PATH: './backups'
+      CONFIG_PATH: '/config'
+      METADATA_PATH: '/metadata'
+      BACKUP_PATH: '/backups'
       PORT: '80'
-      AUDIOBOOKSHELF_ROOT_PASSWORD_FILE: '/run/secrets/AUDIOBOOKSHELF_ROOT_PASSWORD'
+      ACCESS_TOKEN_EXPIRY: '43200'
+      REFRESH_TOKEN_EXPIRY: '604800'
+      ALLOW_IFRAME: '1'
+      ABS_ROOT_PASSWORD_FILE: '/run/secrets/AUDIOBOOKSHELF_ROOT_PASSWORD'
+      ABS_OAUTH_CLIENT_ID_FILE: '/run/secrets/AUDIOBOOKSHELF_OAUTH_CLIENT_ID_FILE'
+      ABS_OAUTH_CLIENT_SECRET_FILE: '/run/secrets/AUDIOBOOKSHELF_OAUTH_CLIENT_SECRET_FILE'
+      ABS_PROVISIONING_PATH: '/provisioning'
     secrets:
       - AUDIOBOOKSHELF_ROOT_PASSWORD
       - AUDIOBOOKSHELF_OAUTH_CLIENT_ID
@@ -72,6 +82,7 @@ services:
     volumes:
       - audiobookshelf-config:/config
       - audiobookshelf-metadata:/metadata
+      - audiobookshelf-provisioning:/provisioning
       - ${VOLUME_DIR}/audiobookshelf-audiobooks:/audiobooks
       - ${VOLUME_DIR}/audiobookshelf-podcasts:/podcasts
       - ${VOLUME_DIR}/audiobookshelf-backups:/backups

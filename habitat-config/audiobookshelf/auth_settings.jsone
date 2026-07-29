@@ -1,0 +1,21 @@
+{
+    "authLoginCustomMessage": null,
+    "authActiveAuthMethods": [ "local", "openid" ],
+    "authOpenIDIssuerURL": "https://authelia.${APP_HOST}",
+    "authOpenIDAuthorizationURL": "https://authelia.${APP_HOST}",
+    "authOpenIDTokenURL": "https://authelia.${APP_HOST}",
+    "authOpenIDUserInfoURL": "https://authelia.${APP_HOST}",
+    "authOpenIDJwksURL": "https://authelia.${APP_HOST}",
+    "authOpenIDLogoutURL": "https://authelia.${APP_HOST}/logout?rd=https%3A%2F%2Faudiobookshelf.${APP_HOST}",
+    "authOpenIDClientID": "${ABS_OAUTH_CLIENT_ID}",
+    "authOpenIDClientSecret": "${ABS_OAUTH_CLIENT_SECRET}",
+    "authOpenIDTokenSigningAlgorithm": "RS256",
+    "authOpenIDMobileRedirectURIs": [ "audiobookshelf://oauth" ],
+    "authOpenIDSubfolderForRedirectURLs": "",
+    "authOpenIDButtonText": "Login with Authelia",
+    "authOpenIDMatchExistingBy": "username",
+    "authOpenIDAutoLaunch": true,
+    "authOpenIDAutoRegister": true,
+    "authOpenIDGroupClaim": "groups",
+    "authOpenIDAdvancedPermsClaim": ""
+}
