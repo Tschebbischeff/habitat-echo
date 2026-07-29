@@ -9,11 +9,7 @@ export ABS_OAUTH_CLIENT_SECRET="$ABS_OAUTH_CLIENT_SECRET"
 [ -f "$ABS_OAUTH_CLIENT_SECRET_FILE" ] && export ABS_OAUTH_CLIENT_SECRET="$(cat "$ABS_OAUTH_CLIENT_SECRET_FILE")"
 ABS_PROVISIONING_PATH="${ABS_PROVISIONING_PATH:-/provisioning}"
 
-# Sanitize settings related env vars
-[ -z "$ABS_SETTINGS_HOME_BOOKSHELF_VIEW" ] || { [ "$ABS_SETTINGS_HOME_BOOKSHELF_VIEW" = "true" ] && export ABS_SETTINGS_HOME_BOOKSHELF_VIEW="0"; } || export ABS_SETTINGS_HOME_BOOKSHELF_VIEW="1" # Somehow 1 means false for this field, let user use normal booleans though :^)
-[ -z "$ABS_SETTINGS_BOOKSHELF_VIEW" ] || { [ "$ABS_SETTINGS_BOOKSHELF_VIEW" = "true" ] && export ABS_SETTINGS_BOOKSHELF_VIEW="0"; } || export ABS_SETTINGS_BOOKSHELF_VIEW="1" # Somehow 1 means false for this field, let user use normal booleans though :^)
-
-# Default settings values
+# Default settings values & sanitization
 export ABS_SETTINGS_STORE_COVER_WITH_ITEM="${ABS_SETTINGS_STORE_COVER_WITH_ITEM:-false}"
 export ABS_SETTINGS_STORE_METADATA_WITH_ITEM="${ABS_SETTINGS_STORE_METADATA_WITH_ITEM:-false}"
 export ABS_SETTINGS_SORTING_IGNORE_PREFIX="${ABS_SETTINGS_SORTING_IGNORE_PREFIX:-true}"
@@ -25,12 +21,17 @@ export ABS_SETTINGS_SCANNER_PREFER_MATCHED_METADATA="${ABS_SETTINGS_SCANNER_PREF
 export ABS_SETTINGS_SCANNER_DISABLE_WATCHER="${ABS_SETTINGS_SCANNER_DISABLE_WATCHER:-false}"
 export ABS_SETTINGS_CHROMECAST_ENABLED="${ABS_SETTINGS_CHROMECAST_ENABLED:-false}"
 export ABS_SETTINGS_HOME_BOOKSHELF_VIEW="${ABS_SETTINGS_HOME_BOOKSHELF_VIEW:-"1"}"
+[ "$ABS_SETTINGS_HOME_BOOKSHELF_VIEW" = "true" ] && export ABS_SETTINGS_HOME_BOOKSHELF_VIEW="0" # Let's user optionally declare as normal boolean
+[ "$ABS_SETTINGS_HOME_BOOKSHELF_VIEW" = "false" ] && export ABS_SETTINGS_HOME_BOOKSHELF_VIEW="1" # Let's user optionally declare as normal boolean
 export ABS_SETTINGS_BOOKSHELF_VIEW="${ABS_SETTINGS_BOOKSHELF_VIEW:-"1"}"
-export ABS_SETTINGS_DATE_FORMAT="${ABS_SETTINGS_DATE_FORMAT:-"MM/dd/yyyy"}"
+[ "$ABS_SETTINGS_BOOKSHELF_VIEW" = "true" ] && export ABS_SETTINGS_BOOKSHELF_VIEW="0" # Let's user optionally declare as normal boolean
+[ "$ABS_SETTINGS_BOOKSHELF_VIEW" = "false" ] && export ABS_SETTINGS_BOOKSHELF_VIEW="1" # Let's user optionally declare as normal boolean
+export ABS_SETTINGS_DATE_FORMAT="${ABS_SETTINGS_DATE_FORMAT:-"dd/MM/yyyy"}"
 export ABS_SETTINGS_TIME_FORMAT="${ABS_SETTINGS_TIME_FORMAT:-"HH:mm"}"
 export ABS_SETTINGS_LANGUAGE="${ABS_SETTINGS_LANGUAGE:-"en-us"}"
 export ABS_SETTINGS_ALLOWED_ORIGINS="${ABS_SETTINGS_ALLOWED_ORIGINS:-}"
-export ABS_SETTINGS_BACKUP_SCHEDULE="${ABS_SETTINGS_BACKUP_SCHEDULE:-true}"
+export ABS_SETTINGS_BACKUP_SCHEDULE="${ABS_SETTINGS_BACKUP_SCHEDULE:-"30 1 * * *"}"
+[ "$ABS_SETTINGS_BACKUP_SCHEDULE" != "false" ] && export ABS_SETTINGS_BACKUP_SCHEDULE="\"$ABS_SETTINGS_BACKUP_SCHEDULE\""
 export ABS_SETTINGS_BACKUPS_TO_KEEP="${ABS_SETTINGS_BACKUPS_TO_KEEP:-"2"}"
 export ABS_SETTINGS_MAX_BACKUP_SIZE="${ABS_SETTINGS_MAX_BACKUP_SIZE:-"1"}"
 export ABS_SETTINGS_METADATA_FILE_FORMAT="${ABS_SETTINGS_METADATA_FILE_FORMAT:-"json"}"
@@ -106,26 +107,24 @@ TOKEN="$(node -e "console.log(JSON.parse(process.argv[1]).user.accessToken)" "$r
 # ### Provisioning
 
 # Server Settings
-envsubst <"$ABS_PROVISIONING_PATH/server_settings.jsone" >"$ABS_PROVISIONING_PATH/server_settings.json"
-# curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
-#     -H "Authorization: Bearer $TOKEN" \
-#     -H "Content-Type: application/json" \
-#     -d "$(envsubst <"$ABS_PROVISIONING_PATH/server_settings.jsone")" \
-#     "http://127.0.0.1:$TEMP_PORT/api/settings" || {
-#         echo "Could not set server settings, the server logs above may contain a hint as to why."
-#         exit 4
-#     }
+curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "$(envsubst <"$ABS_PROVISIONING_PATH/server_settings.jsone")" \
+    "http://127.0.0.1:$TEMP_PORT/api/settings" || {
+        echo "Could not set server settings, the server logs above may contain a hint as to why."
+        exit 4
+    }
 
 # Auth Settings
-envsubst <"$ABS_PROVISIONING_PATH/auth_settings.jsone" >"$ABS_PROVISIONING_PATH/auth_settings.json"
-# curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
-#     -H "Authorization: Bearer $TOKEN" \
-#     -H "Content-Type: application/json" \
-#     -d "$(envsubst <"$ABS_PROVISIONING_PATH/auth_settings.jsone")" \
-#     "http://127.0.0.1:$TEMP_PORT/api/auth-settings" || {
-#         echo "Could not set auth settings, the server logs above may contain a hint as to why."
-#         exit 4
-#     }
+curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "$(envsubst <"$ABS_PROVISIONING_PATH/auth_settings.jsone")" \
+    "http://127.0.0.1:$TEMP_PORT/api/auth-settings" || {
+        echo "Could not set auth settings, the server logs above may contain a hint as to why."
+        exit 4
+    }
 
 # End the session
 echo "Logging out..."
