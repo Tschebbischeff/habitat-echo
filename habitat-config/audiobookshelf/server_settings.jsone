@@ -11,9 +11,9 @@
     "chromecastEnabled": ${ABS_SETTINGS_CHROMECAST_ENABLED},
     "homeBookshelfView": ${ABS_SETTINGS_HOME_BOOKSHELF_VIEW},
     "bookshelfView": ${ABS_SETTINGS_BOOKSHELF_VIEW},
-    "dateFormat": ${ABS_SETTINGS_DATE_FORMAT},
-    "timeFormat": ${ABS_SETTINGS_TIME_FORMAT},
-    "language": ${ABS_SETTINGS_LANGUAGE},
+    "dateFormat": "${ABS_SETTINGS_DATE_FORMAT}",
+    "timeFormat": "${ABS_SETTINGS_TIME_FORMAT}",
+    "language": "${ABS_SETTINGS_LANGUAGE}",
     "allowedOrigins": [ ${ABS_SETTINGS_ALLOWED_ORIGINS} ],
 
     "backupSchedule": ${ABS_SETTINGS_BACKUP_SCHEDULE},
