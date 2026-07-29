@@ -17,7 +17,7 @@ echo "Waiting for temporary server to be available..."
 while ! curl -XGET -sfo /dev/null "http://127.0.0.1:$TEMP_PORT/healthcheck"; do sleep 5; done
 echo "Temporary server is online, continuing."
 
-# First initialization
+# First initialization, REST API Documentation: https://api.audiobookshelf.org/
 response="$(
     curl -XGET -s \
         -H "Content-Type: application/json" \
@@ -53,13 +53,23 @@ response="$(
             "username": "root",
             "password": "'"$ROOT_PASSWORD"'"
         }' \
-        "http://localhost:$TEMP_PORT/login"
+        "http://127.0.0.1:$TEMP_PORT/login"
 )"
 TOKEN="$(node -e "console.log(JSON.parse(process.argv[1]).user.accessToken)" "$response" 2>/dev/null)"
 [ -n "$TOKEN" ] || { echo "Could not log in as root user."; exit 3; }
 
 # Provisioning
-# TODO
+# curl -XPATCH -so /dev/null -b "$CURL_COOKIEJAR" \
+#   -H "Authorization: Bearer $TOKEN" \
+#   -H "Content-Type: application/json" \
+#   -d '{}' \
+#   "http://127.0.0.1:$TEMP_PORT/api/settings"
+
+# curl -XPATCH -so /dev/null -b "$CURL_COOKIEJAR" \
+#   -H "Authorization: Bearer $TOKEN" \
+#   -H "Content-Type: application/json" \
+#   -d '{}' \
+#   "http://127.0.0.1:$TEMP_PORT/api/auth-settings"
 
 # End the session
 echo "Logging out..."
@@ -69,7 +79,7 @@ curl -XPOST -so /dev/null -b "$CURL_COOKIEJAR" \
     -d '{
         "socketId": null
     }' \
-    "http://localhost:$TEMP_PORT/logout"
+    "http://127.0.0.1:$TEMP_PORT/logout"
 rm "$CURL_COOKIEJAR"
 
 # Shut down temporary server and run the real thing
