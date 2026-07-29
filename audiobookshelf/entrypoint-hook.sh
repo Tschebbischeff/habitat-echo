@@ -50,6 +50,8 @@ export ABS_SETTINGS_PODCAST_EPISODE_SCHEDULE="${ABS_SETTINGS_PODCAST_EPISODE_SCH
 [ -f "$ABS_PROVISIONING_PATH/server_settings.jsone" ] || { echo "Provisioning dir '$ABS_PROVISIONING_PATH' contains no 'server_settings.jsone'."; exit 1; }
 [ -f "$ABS_PROVISIONING_PATH/auth_settings.jsone" ] || { echo "Provisioning dir '$ABS_PROVISIONING_PATH' contains no 'auth_settings.jsone'."; exit 1; }
 
+exec "$@"
+
 # Start server on different port so we can run the initialization, provisioning, etc. without fulfilling final healtchecks
 { [ "$PORT" -ne "13378" ] && TEMP_PORT="13378"; } || TEMP_PORT="13379"
 echo "Starting temporary server on port $TEMP_PORT for initialization and provisioning..."
