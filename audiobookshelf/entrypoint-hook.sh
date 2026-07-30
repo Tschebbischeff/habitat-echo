@@ -154,7 +154,7 @@ response="$(
 existingLibraryIds="$(node -e "console.log((JSON.parse(process.argv[1]).libraries || []).map(x => x.id).join('\n'))" "$response")" || exit "$ERR_JSON_UNDECODABLE"
 find "$CONFIG_PATH/.entrypointhook" -type f -name 'library_*.id' | while read -r idFile; do
     provisioningFile="$(basename "$idFile")"
-    provisioningFile="${idFile%.id}"
+    provisioningFile="${provisioningFile%.id}"
     provisioningFile="$ABS_PROVISIONING_PATH/libraries/${provisioningFile#library_}.jsone"
     # Clean up IDs de-synced from DB first
     echo "$existingLibraryIds" | grep -qx "$(cat "$idFile")" || {
