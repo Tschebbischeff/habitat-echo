@@ -17,11 +17,11 @@
         "hideSingleBookSeries": false,
         "onlyShowLaterBooksInContinueSeries": false,
         "metadataPrecedence": [
-            "folderStructure",
             "audioMetatags",
             "nfoFile",
             "txtFiles",
             "opfFile",
+            "folderStructure",
             "absMetadata"
         ],
         "markAsFinishedPercentComplete": null,
