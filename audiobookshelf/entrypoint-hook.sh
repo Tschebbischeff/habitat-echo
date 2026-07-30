@@ -153,15 +153,15 @@ response="$(
 )"
 existingLibraryIds="$(node -e "console.log((JSON.parse(process.argv[1]).libraries || []).map(x => x.id).join('\n'))" "$response")" || exit "$ERR_JSON_UNDECODABLE"
 find "$CONFIG_PATH/.entrypointhook" -type f -name 'library_*.id' | while read -r idFile; do
+    provisioningFile="$(basename "$idFile")"
+    provisioningFile="${idFile%.id}"
+    provisioningFile="$ABS_PROVISIONING_PATH/libraries/${provisioningFile#library_}.jsone"
     # Clean up IDs de-synced from DB first
     echo "$existingLibraryIds" | grep -qx "$(cat "$idFile")" || {
         echo "Cleaning up ID record for library '$(cat "$idFile")', provisioned from '$provisioningFile'. Library was deleted externally (it will be recreated if the provisioning file still exists)."
         rm "$idFile"
         continue
     }
-    provisioningFile="$(basename "$idFile")"
-    provisioningFile="${idFile%.id}"
-    provisioningFile="$ABS_PROVISIONING_PATH/libraries/${provisioningFile#library_}.jsone"
     if [ ! -f "$provisioningFile" ]; then
         # Delete, provisioning file was removed
         if curl -XDELETE -sfo /dev/null -b "$CURL_COOKIEJAR" \
