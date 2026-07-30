@@ -159,6 +159,7 @@ find "$CONFIG_PATH/.entrypointhook" -type f -name 'library_*.id' | while read -r
         rm "$idFile"
         continue
     }
+    provisioningFile="$(basename "$idFile")"
     provisioningFile="${idFile%.id}"
     provisioningFile="$ABS_PROVISIONING_PATH/libraries/${provisioningFile#library_}.jsone"
     if [ ! -f "$provisioningFile" ]; then
@@ -175,6 +176,16 @@ find "$CONFIG_PATH/.entrypointhook" -type f -name 'library_*.id' | while read -r
         fi
     fi
 done
+response="$(
+    curl -XGET -sf -b "$CURL_COOKIEJAR" \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "Content-Type: application/json" \
+        "http://127.0.0.1:$TEMP_PORT/api/libraries" || {
+            echo "Could not fetch library list, the server logs above may contain a hint as to why."
+            exit "$ERR_CANNOT_FETCH_LIBS"
+        }
+)"
+existingLibraryIds="$(node -e "console.log((JSON.parse(process.argv[1]).libraries || []).map(x => x.id).join('\n'))" "$response")" || exit "$ERR_JSON_UNDECODABLE"
 [ -d "$ABS_PROVISIONING_PATH/libraries" ] && find "$ABS_PROVISIONING_PATH/libraries" -type f -name '*.jsone' | while read -r provisioningFile; do
     idFile="$CONFIG_PATH/.entrypointhook/library_$(basename "${provisioningFile%.*}").id"
     if [ -f "$idFile" ]; then
