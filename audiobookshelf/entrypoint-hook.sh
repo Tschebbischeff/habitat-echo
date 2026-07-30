@@ -1,13 +1,19 @@
 #!/bin/sh
 
-# Extract secrets to environment variables; Apply defaults to undefined environment variables
-ABS_ROOT_PASSWORD="${ABS_ROOT_PASSWORD:-}"
-[ -f "$ABS_ROOT_PASSWORD_FILE" ] && ABS_ROOT_PASSWORD="$(cat "$ABS_ROOT_PASSWORD_FILE")"
-export ABS_OAUTH_CLIENT_ID="$ABS_OAUTH_CLIENT_ID"
-[ -f "$ABS_OAUTH_CLIENT_ID_FILE" ] && export ABS_OAUTH_CLIENT_ID="$(cat "$ABS_OAUTH_CLIENT_ID_FILE")"
-export ABS_OAUTH_CLIENT_SECRET="$ABS_OAUTH_CLIENT_SECRET"
-[ -f "$ABS_OAUTH_CLIENT_SECRET_FILE" ] && export ABS_OAUTH_CLIENT_SECRET="$(cat "$ABS_OAUTH_CLIENT_SECRET_FILE")"
-ABS_PROVISIONING_PATH="${ABS_PROVISIONING_PATH:-/provisioning}"
+# Error codes
+ERR_MANDATORY_ENV_NOT_SET="1"
+ERR_MANDATORY_DIR_OR_FILE_MISSING="2"
+ERR_JSON_UNDECODABLE="3"
+ERR_AT_SERVER_INIT="4"
+ERR_CANNOT_LOGIN="5"
+ERR_SERVER_SETTINGS_FAILURE="6"
+ERR_AUTH_SETTINGS_FAILURE="7"
+ERR_CANNOT_FETCH_LIBS="8"
+
+# Override for environment variables mountable as secrets via _FILE suffix
+[ -z "$ABS_ROOT_PASSWORD" ] && [ -f "$ABS_ROOT_PASSWORD_FILE" ] && export ABS_ROOT_PASSWORD="$(cat "$ABS_ROOT_PASSWORD_FILE")"
+[ -z "$ABS_OAUTH_CLIENT_ID" ] && [ -f "$ABS_OAUTH_CLIENT_ID_FILE" ] && export ABS_OAUTH_CLIENT_ID="$(cat "$ABS_OAUTH_CLIENT_ID_FILE")"
+[ -z "$ABS_OAUTH_CLIENT_SECRET" ] && [ -f "$ABS_OAUTH_CLIENT_SECRET_FILE" ] && export ABS_OAUTH_CLIENT_SECRET="$(cat "$ABS_OAUTH_CLIENT_SECRET_FILE")"
 
 # Default settings values & sanitization
 export ABS_SETTINGS_STORE_COVER_WITH_ITEM="${ABS_SETTINGS_STORE_COVER_WITH_ITEM:-false}"
@@ -26,11 +32,11 @@ export ABS_SETTINGS_HOME_BOOKSHELF_VIEW="${ABS_SETTINGS_HOME_BOOKSHELF_VIEW:-"1"
 export ABS_SETTINGS_BOOKSHELF_VIEW="${ABS_SETTINGS_BOOKSHELF_VIEW:-"1"}"
 [ "$ABS_SETTINGS_BOOKSHELF_VIEW" = "true" ] && export ABS_SETTINGS_BOOKSHELF_VIEW="0" # Let's user optionally declare as normal boolean
 [ "$ABS_SETTINGS_BOOKSHELF_VIEW" = "false" ] && export ABS_SETTINGS_BOOKSHELF_VIEW="1" # Let's user optionally declare as normal boolean
-export ABS_SETTINGS_DATE_FORMAT="${ABS_SETTINGS_DATE_FORMAT:-"dd/MM/yyyy"}"
+export ABS_SETTINGS_DATE_FORMAT="${ABS_SETTINGS_DATE_FORMAT:-"MM/dd/yyyy"}"
 export ABS_SETTINGS_TIME_FORMAT="${ABS_SETTINGS_TIME_FORMAT:-"HH:mm"}"
 export ABS_SETTINGS_LANGUAGE="${ABS_SETTINGS_LANGUAGE:-"en-us"}"
 export ABS_SETTINGS_ALLOWED_ORIGINS="${ABS_SETTINGS_ALLOWED_ORIGINS:-}"
-export ABS_SETTINGS_BACKUP_SCHEDULE="${ABS_SETTINGS_BACKUP_SCHEDULE:-"30 1 * * *"}"
+export ABS_SETTINGS_BACKUP_SCHEDULE="${ABS_SETTINGS_BACKUP_SCHEDULE:-false}"
 [ "$ABS_SETTINGS_BACKUP_SCHEDULE" != "false" ] && export ABS_SETTINGS_BACKUP_SCHEDULE="\"$ABS_SETTINGS_BACKUP_SCHEDULE\""
 export ABS_SETTINGS_BACKUPS_TO_KEEP="${ABS_SETTINGS_BACKUPS_TO_KEEP:-"2"}"
 export ABS_SETTINGS_MAX_BACKUP_SIZE="${ABS_SETTINGS_MAX_BACKUP_SIZE:-"1"}"
@@ -43,12 +49,18 @@ export ABS_SETTINGS_LOG_LEVEL="${ABS_SETTINGS_LOG_LEVEL:-"2"}"
 export ABS_SETTINGS_PODCAST_EPISODE_SCHEDULE="${ABS_SETTINGS_PODCAST_EPISODE_SCHEDULE:-"0 * * * *"}"
 
 # Early stop-condition checks on env vars
-[ -n "$ABS_ROOT_PASSWORD" ] || { echo "No root password set. This environment variable is mandatory. Please set either ABS_ROOT_PASSWORD or ABS_ROOT_PASSWORD_FILE"; exit 1; }
-[ -n "$ABS_OAUTH_CLIENT_ID" ] || { echo "No OAuth client ID set. This environment variable is mandatory. Please set either ABS_OAUTH_CLIENT_ID or ABS_OAUTH_CLIENT_ID_FILE"; exit 1; }
-[ -n "$ABS_OAUTH_CLIENT_SECRET" ] || { echo "No OAuth client ID set. This environment variable is mandatory. Please set either ABS_OAUTH_CLIENT_SECRET or ABS_OAUTH_CLIENT_SECRET_FILE"; exit 1; }
-[ -d "$ABS_PROVISIONING_PATH" ] || { echo "Provisioning dir '$ABS_PROVISIONING_PATH' does not exist."; exit 1; }
-[ -f "$ABS_PROVISIONING_PATH/server_settings.jsone" ] || { echo "Provisioning dir '$ABS_PROVISIONING_PATH' contains no 'server_settings.jsone'."; exit 1; }
-[ -f "$ABS_PROVISIONING_PATH/auth_settings.jsone" ] || { echo "Provisioning dir '$ABS_PROVISIONING_PATH' contains no 'auth_settings.jsone'."; exit 1; }
+[ -n "$ABS_ROOT_PASSWORD" ] || { echo "No root password set. This environment variable is mandatory. Please set either ABS_ROOT_PASSWORD or ABS_ROOT_PASSWORD_FILE"; exit "$ERR_MANDATORY_ENV_NOT_SET"; }
+[ -n "$ABS_OAUTH_CLIENT_ID" ] || { echo "No OAuth client ID set. This environment variable is mandatory. Please set either ABS_OAUTH_CLIENT_ID or ABS_OAUTH_CLIENT_ID_FILE"; exit "$ERR_MANDATORY_ENV_NOT_SET"; }
+[ -n "$ABS_OAUTH_CLIENT_SECRET" ] || { echo "No OAuth client ID set. This environment variable is mandatory. Please set either ABS_OAUTH_CLIENT_SECRET or ABS_OAUTH_CLIENT_SECRET_FILE"; exit "$ERR_MANDATORY_ENV_NOT_SET"; }
+[ -d "$CONFIG_PATH" ] || { echo "Config dir '$CONFIG_PATH' does not exist."; exit "$ERR_MANDATORY_DIR_OR_FILE_MISSING"; }
+[ -d "$METADATA_PATH" ] || { echo "Metadata dir '$METADATA_PATH' does not exist."; exit "$ERR_MANDATORY_DIR_OR_FILE_MISSING"; }
+[ -d "$BACKUP_PATH" ] || { echo "Backup dir '$BACKUP_PATH' does not exist."; exit "$ERR_MANDATORY_DIR_OR_FILE_MISSING"; }
+[ -d "$ABS_PROVISIONING_PATH" ] || { echo "Provisioning dir '$ABS_PROVISIONING_PATH' does not exist."; exit "$ERR_MANDATORY_DIR_OR_FILE_MISSING"; }
+[ -f "$ABS_PROVISIONING_PATH/server_settings.jsone" ] || { echo "Provisioning dir '$ABS_PROVISIONING_PATH' contains no 'server_settings.jsone'."; exit "$ERR_MANDATORY_DIR_OR_FILE_MISSING"; }
+[ -f "$ABS_PROVISIONING_PATH/auth_settings.jsone" ] || { echo "Provisioning dir '$ABS_PROVISIONING_PATH' contains no 'auth_settings.jsone'."; exit "$ERR_MANDATORY_DIR_OR_FILE_MISSING"; }
+
+# Init folder struct
+mkdir -p "$CONFIG_PATH/.entrypointhook"
 
 # Start server on different port so we can run the initialization, provisioning, etc. without fulfilling final healtchecks
 { [ "$PORT" -ne "13378" ] && TEMP_PORT="13378"; } || TEMP_PORT="13379"
@@ -69,7 +81,7 @@ response="$(
         -H "Content-Type: application/json" \
         "http://127.0.0.1:$TEMP_PORT/status"
 )"
-isInit="$(node -e "console.log(JSON.parse(process.argv[1]).isInit)" "$response" 2>/dev/null)"
+isInit="$(node -e "console.log(JSON.parse(process.argv[1]).isInit)" "$response")" || exit "$ERR_JSON_UNDECODABLE"
 if [ "$isInit" != "true" ]; then
     echo "Initializing 'root' user..."
     if curl -XPOST -sfo /dev/null \
@@ -85,7 +97,7 @@ if [ "$isInit" != "true" ]; then
         echo "Successfully initialized 'root' user."
     else
         echo "Could not initialize 'root' user."
-        exit 2
+        exit "$ERR_AT_SERVER_INIT"
     fi
 fi
 
@@ -102,29 +114,93 @@ response="$(
         "http://127.0.0.1:$TEMP_PORT/login"
 )"
 TOKEN="$(node -e "console.log(JSON.parse(process.argv[1]).user.accessToken)" "$response" 2>/dev/null)"
-[ -n "$TOKEN" ] || { echo "Login as user 'root' failed."; exit 3; }
+[ -n "$TOKEN" ] || { echo "Login as user 'root' failed."; exit "$ERR_CANNOT_LOGIN"; }
 
 # ### Provisioning
 
 # Server Settings
+echo "Provisioning server settings..."
 curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
     -H "Authorization: Bearer $TOKEN" \
     -H "Content-Type: application/json" \
     -d "$(envsubst <"$ABS_PROVISIONING_PATH/server_settings.jsone")" \
     "http://127.0.0.1:$TEMP_PORT/api/settings" || {
         echo "Could not set server settings, the server logs above may contain a hint as to why."
-        exit 4
+        exit "$ERR_SERVER_SETTINGS_FAILURE"
     }
 
 # Auth Settings
+echo "Provisioning authentication settings..."
 curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
     -H "Authorization: Bearer $TOKEN" \
     -H "Content-Type: application/json" \
     -d "$(envsubst <"$ABS_PROVISIONING_PATH/auth_settings.jsone")" \
     "http://127.0.0.1:$TEMP_PORT/api/auth-settings" || {
         echo "Could not set auth settings, the server logs above may contain a hint as to why."
-        exit 4
+        exit "$ERR_AUTH_SETTINGS_FAILURE"
     }
+
+# Libraries
+echo "Provisioning libraries..."
+response="$(
+    curl -XGET -sf -b "$CURL_COOKIEJAR" \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "Content-Type: application/json" \
+        "http://127.0.0.1:$TEMP_PORT/api/libraries" || {
+            echo "Could not fetch library list, the server logs above may contain a hint as to why."
+            exit "$ERR_CANNOT_FETCH_LIBS"
+        }
+)"
+existingLibraryIds="$(node -e "console.log((JSON.parse(process.argv[1]).libraries || []).map(x => x.id).join('\n'))" "$response")" || exit "$ERR_JSON_UNDECODABLE"
+find "$CONFIG_PATH/.entrypointhook" -type f -name 'library_*.id' | while read -r idFile; do
+    # Clean up IDs de-synced from DB first
+    echo "$existingLibraryIds" | grep -qx "$(cat "$idFile")" || {
+        echo "Cleaning up stored ID file for provisioning file '$provisioningFile'."
+        rm "$idFile"
+        continue
+    }
+    provisioningFile="${idFile%.id}"
+    provisioningFile="$ABS_PROVISIONING_PATH/libraries/${provisioningFile#library_}.jsone"
+    if [ ! -f "$provisioningFile" ]; then
+        # Delete, provisioning file was removed
+        curl -XDELETE -sfo /dev/null -b "$CURL_COOKIEJAR" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            "http://127.0.0.1:$TEMP_PORT/api/libraries/$(cat "$idFile")" || {
+                echo "Could not delete library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
+                continue
+            }
+    fi
+done
+[ -d "$ABS_PROVISIONING_PATH/libraries" ] && find "$ABS_PROVISIONING_PATH/libraries" -type f -name '*.jsone' | while read -r provisioningFile; do
+    idFile="$CONFIG_PATH/.entrypointhook/library_$(basename "${provisioningFile%.*}").id"
+    if [ -f "$idFile" ]; then
+        # Modify
+        curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$(envsubst <"$provisioningFile")" \
+            "http://127.0.0.1:$TEMP_PORT/api/libraries/$(cat "$idFile")" || {
+                echo "Could not modify library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
+                continue
+            }
+    else
+        # Create
+        if response="$(
+            curl -XPOST -sf -b "$CURL_COOKIEJAR" \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "$(envsubst <"$provisioningFile")" \
+                "http://127.0.0.1:$TEMP_PORT/api/libraries"
+        )"; then
+            id="$(node -e "console.log(JSON.parse(process.argv[1]).id)" "$response")" || exit "$ERR_JSON_UNDECODABLE"
+            echo "$id" > "$idFile"
+        else
+            echo "Could not create library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
+            continue
+        fi
+    fi
+done
 
 # End the session
 echo "Logging out..."

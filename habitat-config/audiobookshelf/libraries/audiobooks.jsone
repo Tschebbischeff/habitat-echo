@@ -1,0 +1,33 @@
+{
+    "name": "Audiobooks",
+    "provider": "google",
+    "folders": [
+        {
+            "fullPath": "/audiobooks"
+        }
+    ],
+    "icon": "audiobookshelf",
+    "mediaType": "book",
+    "settings": {
+        "coverAspectRatio": 1,
+        "disableWatcher": false,
+        "skipMatchingMediaWithAsin": false,
+        "skipMatchingMediaWithIsbn": false,
+        "autoScanCronExpression": null,
+        "hideSingleBookSeries": false,
+        "onlyShowLaterBooksInContinueSeries": false,
+        "metadataPrecedence": [
+            "folderStructure",
+            "audioMetatags",
+            "nfoFile",
+            "txtFiles",
+            "opfFile",
+            "absMetadata"
+        ],
+        "markAsFinishedPercentComplete": null,
+        "markAsFinishedTimeRemaining": 10,
+        "audiobooksOnly": true,
+        "epubsAllowScriptedContent": false,
+        "podcastSearchRegion": "us"
+    }
+}

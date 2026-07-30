@@ -1,0 +1,33 @@
+{
+    "name": "Podcasts",
+    "provider": "itunes",
+    "folders": [
+        {
+            "fullPath": "/podcasts"
+        }
+    ],
+    "icon": "microphone-1",
+    "mediaType": "podcast",
+    "settings": {
+        "coverAspectRatio": 1,
+        "disableWatcher": false,
+        "skipMatchingMediaWithAsin": false,
+        "skipMatchingMediaWithIsbn": false,
+        "autoScanCronExpression": null,
+        "hideSingleBookSeries": false,
+        "onlyShowLaterBooksInContinueSeries": false,
+        "metadataPrecedence": [
+            "folderStructure",
+            "audioMetatags",
+            "nfoFile",
+            "txtFiles",
+            "opfFile",
+            "absMetadata"
+        ],
+        "markAsFinishedPercentComplete": null,
+        "markAsFinishedTimeRemaining": 10,
+        "audiobooksOnly": false,
+        "epubsAllowScriptedContent": false,
+        "podcastSearchRegion": "${ABS_LIBRARY_DEFAULT_PODCAST_SEARCH_REGION}"
+    }
+}
