@@ -155,7 +155,7 @@ existingLibraryIds="$(node -e "console.log((JSON.parse(process.argv[1]).librarie
 find "$CONFIG_PATH/.entrypointhook" -type f -name 'library_*.id' | while read -r idFile; do
     # Clean up IDs de-synced from DB first
     echo "$existingLibraryIds" | grep -qx "$(cat "$idFile")" || {
-        echo "Cleaning up stored ID file for provisioning file '$provisioningFile'."
+        echo "Cleaning up ID record for library '$(cat "$idFile")', provisioned from '$provisioningFile'. Library was deleted externally (it will be recreated if the provisioning file still exists)."
         rm "$idFile"
         continue
     }
@@ -163,27 +163,33 @@ find "$CONFIG_PATH/.entrypointhook" -type f -name 'library_*.id' | while read -r
     provisioningFile="$ABS_PROVISIONING_PATH/libraries/${provisioningFile#library_}.jsone"
     if [ ! -f "$provisioningFile" ]; then
         # Delete, provisioning file was removed
-        curl -XDELETE -sfo /dev/null -b "$CURL_COOKIEJAR" \
+        if curl -XDELETE -sfo /dev/null -b "$CURL_COOKIEJAR" \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
-            "http://127.0.0.1:$TEMP_PORT/api/libraries/$(cat "$idFile")" || {
-                echo "Could not delete library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
-                continue
-            }
+            "http://127.0.0.1:$TEMP_PORT/api/libraries/$(cat "$idFile")"
+        then
+            echo "Deleted library '$(cat "$idFile")', previously provisioned from '$provisioningFile'."
+        else
+            echo "Could not delete library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
+            continue
+        fi
     fi
 done
 [ -d "$ABS_PROVISIONING_PATH/libraries" ] && find "$ABS_PROVISIONING_PATH/libraries" -type f -name '*.jsone' | while read -r provisioningFile; do
     idFile="$CONFIG_PATH/.entrypointhook/library_$(basename "${provisioningFile%.*}").id"
     if [ -f "$idFile" ]; then
         # Modify
-        curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
+        if curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
             -d "$(envsubst <"$provisioningFile")" \
-            "http://127.0.0.1:$TEMP_PORT/api/libraries/$(cat "$idFile")" || {
-                echo "Could not modify library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
-                continue
-            }
+            "http://127.0.0.1:$TEMP_PORT/api/libraries/$(cat "$idFile")"
+        then
+            echo "Updated library '$(cat "$idFile")', provisioned from '$provisioningFile'."
+        else
+            echo "Could not modify library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
+            continue
+        fi
     else
         # Create
         if response="$(
@@ -194,6 +200,7 @@ done
                 "http://127.0.0.1:$TEMP_PORT/api/libraries"
         )"; then
             id="$(node -e "console.log(JSON.parse(process.argv[1]).id)" "$response")" || exit "$ERR_JSON_UNDECODABLE"
+            echo "Created library '$id', provisioned from '$provisioningFile'."
             echo "$id" > "$idFile"
         else
             echo "Could not create library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
