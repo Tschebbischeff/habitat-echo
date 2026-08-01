@@ -32,6 +32,7 @@ You can check out all officially available modules [here](https://github.com/Tsc
 ### Requirements
 
  - [![Habitat-Module: Path](https://img.shields.io/badge/Habitat--Module-Path-_?style=flat&color=gray&labelColor=gray)](https://github.com/Tschebbischeff/habitat-path)
+ - [![Habitat-Module: Scent](https://img.shields.io/badge/Habitat--Module-Scent-_?style=flat&color=gray&labelColor=gray)](https://github.com/Tschebbischeff/habitat-scent)
 
 ### Configuration
 
