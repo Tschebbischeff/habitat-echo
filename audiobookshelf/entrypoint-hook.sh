@@ -189,16 +189,56 @@ existingLibraryIds="$(node -e "console.log((JSON.parse(process.argv[1]).librarie
 [ -d "$ABS_PROVISIONING_PATH/libraries" ] && find "$ABS_PROVISIONING_PATH/libraries" -type f -name '*.jsone' | while read -r provisioningFile; do
     idFile="$CONFIG_PATH/.entrypointhook/library_$(basename "${provisioningFile%.*}").id"
     if [ -f "$idFile" ]; then
-        # Modify
-        if curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
-            -H "Authorization: Bearer $TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "$(envsubst <"$provisioningFile")" \
-            "http://127.0.0.1:$TEMP_PORT/api/libraries/$(cat "$idFile")"
-        then
-            echo "Updated library '$(cat "$idFile")', provisioned from '$provisioningFile'."
+        # Calculate difference to current state
+        if response="$(
+            curl -XGET -sf -b "$CURL_COOKIEJAR" \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Content-Type: application/json" \
+                "http://127.0.0.1:$TEMP_PORT/api/libraries/$(cat "$idFile")"
+        )"; then
+            # Extract keys that have changed
+            currentConfigFile="$(mktemp)"
+            currentProvisioningFile="$(mktemp)"
+            currentPatchFile="$(mktemp)"
+            echo "$response" >"$currentConfigFile"
+            envsubst <"$provisioningFile" >"$currentProvisioningFile"
+            jq -rs '
+                (.[1] | [paths(scalars) as $p | {key: ($p | map(tostring) | join(".")), value: getpath($p)}] | from_entries) as $ref |
+                [
+                    .[0]
+                    | paths(scalars) as $p
+                    | select(
+                        (($p | map(tostring) | join(".")) as $str_p | $ref[$str_p] != getpath($p))
+                    )
+                    | {path: $p, value: getpath($p)}
+                ]
+                | reduce .[] as $item ({}; setpath($item.path; $item.value))
+            ' "$currentProvisioningFile" "$currentConfigFile" >"$currentPatchFile"
+            [ -f "$currentConfigFile" ] && rm "$currentConfigFile"
+            [ -f "$currentProvisioningFile" ] && rm "$currentProvisioningFile"
+            if jq -e '. == {}' "$currentPatchFile" >/dev/null; then
+                echo "No changes detected for library '$(cat "$idFile")', provisioned from '$provisioningFile'. Continuing..."
+                [ -f "$currentPatchFile" ] && rm "$currentPatchFile"
+                continue
+            fi
+            # Modify
+            echo "Applying changes to library '$(cat "$idFile")', provisioned from '$provisioningFile':"
+            cat "$currentPatchFile" | jq
+            if curl -XPATCH -sfo /dev/null -b "$CURL_COOKIEJAR" \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "$(cat "$currentPatchFile")" \
+                "http://127.0.0.1:$TEMP_PORT/api/libraries/$(cat "$idFile")"
+            then
+                echo "Updated library '$(cat "$idFile")', provisioned from '$provisioningFile'."
+                [ -f "$currentPatchFile" ] && rm "$currentPatchFile"
+            else
+                echo "Could not modify library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
+                [ -f "$currentPatchFile" ] && rm "$currentPatchFile"
+                continue
+            fi
         else
-            echo "Could not modify library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
+            echo "Could not get current state of library provisioned from '$provisioningFile', the server logs above may contain a hint as to why. Continuing..."
             continue
         fi
     else

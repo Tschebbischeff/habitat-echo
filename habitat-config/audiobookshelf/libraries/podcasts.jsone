@@ -11,23 +11,9 @@
     "settings": {
         "coverAspectRatio": 1,
         "disableWatcher": false,
-        "skipMatchingMediaWithAsin": false,
-        "skipMatchingMediaWithIsbn": false,
         "autoScanCronExpression": null,
-        "hideSingleBookSeries": false,
-        "onlyShowLaterBooksInContinueSeries": false,
-        "metadataPrecedence": [
-            "audioMetatags",
-            "nfoFile",
-            "txtFiles",
-            "opfFile",
-            "folderStructure",
-            "absMetadata"
-        ],
         "markAsFinishedPercentComplete": null,
         "markAsFinishedTimeRemaining": 10,
-        "audiobooksOnly": false,
-        "epubsAllowScriptedContent": false,
         "podcastSearchRegion": "${ABS_LIBRARY_DEFAULT_PODCAST_SEARCH_REGION}"
     }
 }

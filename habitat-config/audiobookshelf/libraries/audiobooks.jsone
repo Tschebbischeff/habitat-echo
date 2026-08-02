@@ -27,7 +27,6 @@
         "markAsFinishedPercentComplete": null,
         "markAsFinishedTimeRemaining": 10,
         "audiobooksOnly": true,
-        "epubsAllowScriptedContent": false,
-        "podcastSearchRegion": "us"
+        "epubsAllowScriptedContent": false
     }
 }

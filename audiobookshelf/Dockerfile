@@ -1,6 +1,6 @@
 FROM ghcr.io/advplyr/audiobookshelf:latest
 
-RUN apk add --no-cache curl envsubst patch
+RUN apk add --no-cache curl envsubst patch jq
 
 COPY ./patches /habitat-patches
 RUN patch "/app/server/auth/OidcAuthStrategy.js" <"/habitat-patches/OidcAuthStrategy.js.patch"
