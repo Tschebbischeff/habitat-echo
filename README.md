@@ -99,11 +99,11 @@ SECRETS_DIR="/run/secrets"
 > [!TIP]
 > Some environment variables are used commonly throughout all modules, you can check the list [here](https://github.com/Tschebbischeff/habitat#environment-variables-for-modules).
 
-*This module does not require any additional environment variables.*
+![TODO](https://img.shields.io/badge/TODO-Coming_Soon_(TM)-red?style=flat)
 
 ### Secrets
 
-*This module does not require any secrets.*
+![TODO](https://img.shields.io/badge/TODO-Coming_Soon_(TM)-red?style=flat)
 
 <!--
 > [!NOTE]
