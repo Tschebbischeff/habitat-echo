@@ -101,6 +101,12 @@ SECRETS_DIR="/run/secrets"
 
 ![TODO](https://img.shields.io/badge/TODO-Coming_Soon_(TM)-red?style=flat)
 
+<!--
+| Name | Description | Example | Default |
+| :-- | :-- | :-- | :-- |
+| `EXAMPLE` | An example description. | `some-value` | *Empty* |
+-->
+
 ### Secrets
 
 ![TODO](https://img.shields.io/badge/TODO-Coming_Soon_(TM)-red?style=flat)
@@ -113,7 +119,7 @@ SECRETS_DIR="/run/secrets"
 
 | (File) Name | Description | Documentation / How to Obtain |
 | :-- | :-- | :-- |
-|  | This module does not require any secrets |  |
+| `EXAMPLE` | An example description. | [FooBar Documentation](https://foobar.example.com/docs/how-to-generate-example-secret) |
 -->
 
 ### Run the Application
