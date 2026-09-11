@@ -4,7 +4,7 @@ RUN apk upgrade --no-cache -a; \
     apk add --no-cache curl envsubst patch jq
 
 COPY ./patches /habitat-patches
-RUN patch "/app/server/auth/OidcAuthStrategy.js" <"/habitat-patches/OidcAuthStrategy.js.patch"
+RUN patch -f -r - "/app/server/auth/OidcAuthStrategy.js" <"/habitat-patches/OidcAuthStrategy.js.patch"
 RUN rm -rf /habitat-patches
 
 COPY ./entrypoint-hook.sh /entrypoint-hook.sh
