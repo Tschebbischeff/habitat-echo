@@ -17,6 +17,5 @@ http:
       middlewares:
         - "sts-headers"
         - "cors-policy"
-        - "auth-proxy"
       tls:
         certResolver: porkbun-api
