@@ -44,6 +44,7 @@ cat >"$SOURCE_FILE_APP_SITE" <<'EOF'
       data-lib-femon
       data-lib-femon-title="Audiobookshelf"
       data-lib-femon-url="https://audiobookshelf.${APP_HOST}"
+      data-lib-femon-check-url="https://status.audiobookshelf.${APP_HOST}/forward-auth"
       data-lib-femon-hide-codes="403"
       data-lib-femon-icon="/assets/icons/di/audiobookshelf.svg"
     ></div>

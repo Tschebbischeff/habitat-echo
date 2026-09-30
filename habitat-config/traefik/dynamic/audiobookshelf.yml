@@ -9,13 +9,21 @@ http:
         servers:
           - url: 'http://{{ env "APP_NAME_HOST" }}_audiobookshelf:80'
   routers:
+    audiobookshelf-status-forward-auth:
+      rule: 'Host(`status.audiobookshelf.{{ env "APP_HOST" }}`) && Path(`/forward-auth`)'
+      service: noop@internal
+      entryPoints: ["websecure"]
+      middlewares:
+        - "cors-policy"
+        - "auth-proxy"
+      tls:
+        certResolver: porkbun-api
     audiobookshelf-80:
       rule: 'Host(`audiobookshelf.{{ env "APP_HOST" }}`)'
       priority: 1
       service: svc_audiobookshelf-80
       entryPoints: ["websecure"]
       middlewares:
-        - "sts-headers"
         - "cors-policy"
       tls:
         certResolver: porkbun-api
