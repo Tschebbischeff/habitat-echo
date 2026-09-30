@@ -1,6 +1,6 @@
 access_control:
   rules:
-    - domain: 'audiobookshelf.{{ env "APP_HOST" }}'
+    - domain: '*.audiobookshelf.{{ env "APP_HOST" }}'
       subject: 'group:audiobookshelf_users'
       policy: one_factor
 
