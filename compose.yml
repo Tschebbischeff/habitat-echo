@@ -52,6 +52,8 @@ services:
   audiobookshelf:
     build:
       context: ./audiobookshelf
+      args:
+        AUDIOBOOKSHELF_VERSION: "${AUDIOBOOKSHELF_VERSION:?}"
     container_name: ${APP_NAME_HOST}_audiobookshelf
     restart: unless-stopped
     expose:

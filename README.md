@@ -101,11 +101,9 @@ SECRETS_DIR="/run/secrets"
 
 ![TODO](https://img.shields.io/badge/TODO-Coming_Soon_(TM)-red?style=flat)
 
-<!--
 | Name | Description | Example | Default |
 | :-- | :-- | :-- | :-- |
-| `EXAMPLE` | An example description. | `some-value` | *Empty* |
--->
+| `AUDIOBOOKSHELF_VERSION` | Tag for the [Audiobookshelf docker image](https://github.com/advplyr/audiobookshelf/pkgs/container/audiobookshelf). | `2.16.1` | `latest` |
 
 ### Secrets
 

@@ -1,4 +1,5 @@
-FROM ghcr.io/advplyr/audiobookshelf:latest
+ARG AUDIOBOOKSHELF_VERSION
+FROM ghcr.io/advplyr/audiobookshelf:${AUDIOBOOKSHELF_VERSION}
 
 RUN apk upgrade --no-cache -a; \
     apk add --no-cache curl envsubst patch jq
